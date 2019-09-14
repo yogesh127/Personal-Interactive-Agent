@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Personal Interactive Agent</title>
+	<link rel="stylesheet" type="text/css" href="static/rtyr.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src='https://code.responsivevoice.org/responsivevoice.js'></script>
+</head>
+<body>
+
+	<div class="chatbox">
+		<div class="chatlogs" id="chatLogs">
+			<div class="chat-friend">
+				<div class="user-photo"><img src="{{url_for('static', filename='bbot.png')}}" /></div>
+				<p class="chat-message">Hey, I'm PIA ..!!</p>	
+			</div>
+			
+			
+			
+		</div>
+		<div class="chat-form" id="userInput">
+			<input id="textInput" type="text" name="msg" placeholder="Message" x-webkit-speech />
+			<input id="buttonInput" type="submit" value="Send">
+		</div>
+			<script>
+			
+			
+			
+			
+			
+			
+			var recognition = new webkitSpeechRecognition();
+	recognition.continuous = true;
+	//recognition.interimResults = true;
+	function start(){
+		recognition.onresult = function(event) { 
+			console.log(event);
+			var output = document.getElementById("textInput");
+			output.innerHTML = "";
+			for(var i=0; i<event.results.length; i++){
+				output.innerHTML = output.innerHTML + event.results[i][0].transcript;
+			}
+		}
+		recognition.start();
+	}
+			
+			
+			
+			
+			
+			
+			
+			function sound(){
+				var snd='<audio autoplay=true><source src="{{url_for('static', filename='poppp.mp3')}}"></audio>';
+				$('body').append(snd);
+				
+			}
+			function updateScroll(){
+			    var element = document.getElementById("chatLogs");
+			    element.scrollTop = element.scrollHeight;
+			}
+			function getBotResponse() {
+			  var rawText = $("#textInput").val();
+			  var userHtml = '<div class="chat-self"><div class="user-photo"><img src="{{url_for('static', filename='boyyy.png')}}" /></div><p class="chat-message">'+rawText+'</p></div>';	
+			  $("#textInput").val("");
+			  $("#chatLogs").append(userHtml);
+			  updateScroll();
+			  sound();
+			  document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+			  $.get("/get", { msg: rawText }).done(function(data) {
+			    var botHtml = '<div class="chat-friend"><div class="user-photo"><img src="{{url_for('static', filename='bbot.png')}}" /></div><p class="chat-message">'+data+'</p></div>';
+			    $("#chatLogs").append(botHtml);
+			    updateScroll();
+			    sound();
+			    responsiveVoice.speak(data);
+			    document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+			  });
+			}
+			$("#textInput").keypress(function(e) {
+			    if(e.which == 13) {
+				getBotResponse();
+				
+			    }
+			});
+			$("#buttonInput").click(function() {
+			  getBotResponse();
+			  
+			})
+		      </script>
+	</div>
+
+	
+
+</body>
+</html>
